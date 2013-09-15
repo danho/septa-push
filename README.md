@@ -10,7 +10,7 @@ With septa-push, you have a server that uses the SEPTA API to push only the delt
 
 ### How to use
 
-Connect socket to localhost (or other url)
+Connect socket to localhost
 <br>
 <code>
 var socket = io.connect("http://localhost:3700");
