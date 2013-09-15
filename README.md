@@ -34,8 +34,9 @@ socket.on('delta', function(data) {
 
 ### Settings
 
-All settings such as the url to request data from or the port number is in index.js
-
+All settings such as the url to request data from (which bus to get data for), the port number, the frequency of pushing data, etc is in index.js
+<br>
+Please feel free to modify the source code as required.
 ### Limitations
 
 As of now this only supports SEPTA buses
