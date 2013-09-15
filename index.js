@@ -3,6 +3,8 @@ var app = express();
 var port = 3700;
 var io = require("socket.io").listen(app.listen(port));
 
+var url = "http://www3.septa.org/hackathon/TransitView/trips.php?route=17";
+
 var buses = [];
 
 var delta = false;
@@ -13,9 +15,6 @@ app.use(express.static(__dirname + '/public'));
 
 function sendData(socket) {
   var http = require('http');
-  // TODO: replace with dynamic url
-  var url = "http://www3.septa.org/hackathon/TransitView/trips.php?route=17";
-
   http.get(url, function(res) {
     var body = "";
     res.on('data', function(chunk) {
@@ -131,10 +130,13 @@ function checkIfDelta(i, raw_data) {
   }
 }
 
+// program starts here
 io.sockets.on('connection', function(socket) {
   sendTimedMessage(socket);
 });
 
+// once client connects, send init message and then delta when there is a
+// chnage in data
 function sendTimedMessage(socket) {
   // send initial data
   sendData(socket);
@@ -142,8 +144,5 @@ function sendTimedMessage(socket) {
   // send deltas of the data every 2 seconds
   setInterval(function() {
     sendData(socket);
-    // if (delta == true) {
-      // delta = false;
-    // }
   }, 2000);
 }
