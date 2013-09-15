@@ -24,7 +24,7 @@ socket.on('init', function(data) {
 });
 </code>
 
-All messages after the init message will be sent where there is a delta of your data
+All messages after the initial message will be sent when there is a delta of your data
 <br>
 <code>
 socket.on('delta', function(data) {
