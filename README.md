@@ -5,8 +5,8 @@ Real time pushing of the deltas of SEPTA bus data using node.js and socket.io
 
 ### Why use this
 
-SEPTA's JSON API (http://www3.septa.org/hackathon) is a real time location tracker for buses and trains, however it requires pulling of data (e.g. there is no server to recieve push data).
-With septa-push, you have a server that uses the SEPTA JSON API to pushes only the deltas of your data.
+SEPTA's API (http://www3.septa.org/hackathon) is a real time location tracker for buses and trains, however it requires pulling of data (e.g. there is no server to recieve push data).
+With septa-push, you have a server that uses the SEPTA API to push only the deltas of your data.
 
 ### How to use
 
