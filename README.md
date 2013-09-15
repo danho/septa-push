@@ -29,7 +29,7 @@ All messages after the init message will be sent where there is a delta of your 
 <code>
 socket.on('delta', function(data) {
   ...
-}
+});
 </code>
 
 ### Settings
