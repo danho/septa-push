@@ -7,13 +7,14 @@ var buses = [];
 
 var delta = false;
 
+var data = null;
+
 app.use(express.static(__dirname + '/public'));
 
-function getData() {
+function sendData(socket) {
   var http = require('http');
   // TODO: replace with dynamic url
   var url = "http://www3.septa.org/hackathon/TransitView/trips.php?route=17";
-  var data = null;
 
   http.get(url, function(res) {
     var body = "";
@@ -21,15 +22,29 @@ function getData() {
       body += chunk;
     });
     res.on('end', function() {
+
+      // init
+      if (data == null) {
+        data = JSON.parse(body);
+        parseData(data);
+        socket.emit('init', { message: data });
+        return;
+      }
+
       data = JSON.parse(body);
-      return parseData(data);
+      parseData(data);
+
+      if (delta == true) {
+        delta = false;
+        socket.emit('delta', { message: data });
+      }
     });
   });
 }
 
-function parseData(data) {
-  for (i=0; i<data.bus.length; i++) {
-    var vehicleID = data.bus[i].VehicleID;
+function parseData(raw_data) {
+  for (i=0; i<raw_data.bus.length; i++) {
+    var vehicleID = raw_data.bus[i].VehicleID;
     var matchFound = false;
 
 
@@ -37,82 +52,82 @@ function parseData(data) {
       if (buses[n] != null &&
             buses[n].vehicleID != null && buses[n].vehicleID == vehicleID) {
         matchFound = true;
-        checkIfDelta(n, data.bus[i]);
+        checkIfDelta(n, raw_data.bus[i]);
         break;
       }
     }
 
     if (matchFound == false) {
       var obj = {
-        lat: data.bus[i].lat,
-        lng: data.bus[i].lng,
-        label: data.bus[i].label,
-        vehicleID: data.bus[i].VehicleID,
-        blockID: data.bus[i].BlockID,
-        tripID: data.bus[i].TripID,
-        direction: data.bus[i].Direction,
-        destination: data.bus[i].destination,
-        offset: data.bus[i].Offset
+        lat: raw_data.bus[i].lat,
+        lng: raw_data.bus[i].lng,
+        label: raw_data.bus[i].label,
+        vehicleID: raw_data.bus[i].VehicleID,
+        blockID: raw_data.bus[i].BlockID,
+        tripID: raw_data.bus[i].TripID,
+        direction: raw_data.bus[i].Direction,
+        destination: raw_data.bus[i].destination,
+        offset: raw_data.bus[i].Offset
       };
       buses.push(obj);
     }
   }
 }
 
-function checkIfDelta(i, data) {
-  if (buses[i].lat != data.lat) {
-    console.log(buses[i].lat);
+function checkIfDelta(i, raw_data) {
+  if (buses[i].lat != raw_data.lat) {
+    // console.log(buses[i].lat);
     delta = true;
-    buses[i].lat = data.lat;
-    console.log(data.lat);
+    buses[i].lat = raw_data.lat;
+    // console.log(raw_data.lat);
   }
-  if (buses[i].lng != data.lng) {
-    console.log(buses[i].lng);
+  if (buses[i].lng != raw_data.lng) {
+    // console.log(buses[i].lng);
     delta = true;
-    buses[i].lng = data.lng;
-    console.log(data.lng);
+    buses[i].lng = raw_data.lng;
+    // console.log(raw_data.lng);
   }
-  if (buses[i].label != data.label) {
-    console.log(buses[i].label);
+  if (buses[i].label != raw_data.label) {
+    // console.log(buses[i].label);
     delta = true;
-    buses[i].label = data.label;
-    console.log(data.label);
+    buses[i].label = raw_data.label;
+    // console.log(raw_data.label);
   }
-  if (buses[i].vehicleID != data.VehicleID) {
-    console.log(buses[i].vehicleID);
+  if (buses[i].vehicleID != raw_data.VehicleID) {
+    // console.log(buses[i].vehicleID);
     delta = true;
-    buses[i].vehicleID = data.VehicleID;
-    console.log(data.VehicleID);
+    buses[i].vehicleID = raw_data.VehicleID;
+    // console.log(raw_data.VehicleID);
   }
-  if (buses[i].blockID != data.BlockID) {
-    console.log(buses[i].blockID);
+  if (buses[i].blockID != raw_data.BlockID) {
+    // console.log(buses[i].blockID);
     delta = true;
-    buses[i].blockID = data.BlockID;
-    console.log(data.BlockID);
+    buses[i].blockID = raw_data.BlockID;
+    // console.log(raw_data.BlockID);
   }
-  if (buses[i].tripID != data.TripID) {
-    console.log(buses[i].tripID);
+  if (buses[i].tripID != raw_data.TripID) {
+    // console.log(buses[i].tripID);
     delta = true;
-    buses[i].tripID = data.TripID;
-    console.log(data.TripID);
+    buses[i].tripID = raw_data.TripID;
+    // console.log(raw_data.TripID);
   }
-  if (buses[i].direction != data.Direction) {
-    console.log(buses[i].direction);
+  if (buses[i].direction != raw_data.Direction) {
+    // console.log(buses[i].direction);
     delta = true;
-    buses[i].direction = data.Direction;
-    console.log(data.Direction);
+    buses[i].direction = raw_data.Direction;
+    // console.log(raw_data.Direction);
   }
-  if (buses[i].destination != data.destination) {
-    console.log(buses[i].destination);
+  if (buses[i].destination != raw_data.destination) {
+    // console.log(buses[i].destination);
     delta = true;
-    buses[i].destination = data.destination;
-    console.log(data.destination);
+    buses[i].destination = raw_data.destination;
+    // console.log(raw_data.destination);
   }
-  if (buses[i].offset != data.Offset) {
-    console.log(buses[i].offset);
+  if (buses[i].offset != raw_data.Offset) {
+    // console.log(buses[i].offset);
     delta = true;
-    buses[i].offset = data.Offset;
-    console.log(data.Offset);
+    buses[i].offset = raw_data.Offset;
+    // console.log(raw_data.Offset);
   }
 }
 
@@ -122,14 +137,13 @@ io.sockets.on('connection', function(socket) {
 
 function sendTimedMessage(socket) {
   // send initial data
-  socket.emit('init', { message: getData() });
+  sendData(socket);
 
   // send deltas of the data every 2 seconds
   setInterval(function() {
-    getData();
-    if (delta == true) {
-      socket.emit('delta', { message: 'test' });
-      delta = false;
-    }
+    sendData(socket);
+    // if (delta == true) {
+      // delta = false;
+    // }
   }, 2000);
 }
