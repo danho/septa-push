@@ -21,19 +21,20 @@ function getData() {
       // TODO: check if delta
       data = JSON.parse(body)["bus"];
       console.log(data);
+      return data;
     });
   });
 }
 
 io.sockets.on('connection', function(socket) {
-  // TODO: return initial data
-  // socket.emit('init', { message: data });
   sendTimedMessage(socket);
 });
 
 function sendTimedMessage(socket) {
-  socket.emit('init', { message: 'test' });
+  // send initial data
+  socket.emit('init', { message: getData() });
 
+  // send deltas of the data every 2 seconds
   setInterval(function() {
     socket.emit('delta', { message: 'test' });
   }, 2000);
